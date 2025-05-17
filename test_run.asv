@@ -1,0 +1,97 @@
+clear
+close all
+clc
+
+%mesh - network structure
+%mesh.POS: nodes 1...N with position x,y,z
+%mesh.LINES: connectivity of nodes in mesh.POS
+%mesh.allbcs: nodes with known BCs (pressure)
+
+load('test_network.mat')
+
+
+%define known boundary conditions for nodes mesh.allbcs
+bcprfl=[20,40,40,20,20];
+
+%estimate unknown boundary conditions
+[mesh2]=flow_estimate_bc(mesh,bcprfl);
+%mesh2.allpressbcs is the estimate values of pressure for the uknown bcs
+
+
+%calculate flow(Q), and H_{d}
+mesh3=netflow(mesh2);
+
+%% calculate  oxygen using Green's function (Secomb 2004)
+
+%domain size
+alz=round(max(mesh.POS(:,3)))+10;
+aly=round(max(mesh.POS(:,2)))+10;
+alx=round(max(mesh.POS(:,1)))+10;
+
+%number of tissue points in x y z direction
+mzz=round(alz/20);
+myy=round(aly/20);
+mxx=round(alx/20);
+
+bcp=90*ones(length(mesh3.allbcs),1);
+
+[tissout]=secomb_oxygen(mesh3,bcp,mxx,myy,mzz,alx,aly,alz);
+
+
+%% plot flow resultts
+
+qq=abs(mesh3.Q);
+c=colormap(parula(size(qq',1)));
+maxflow=300;
+minflow=0;
+lin_flow=linspace(minflow,maxflow,length(qq));
+lin_flow=lin_flow';
+
+segments=mesh3.LINES;
+nodes=mesh3.POS;
+x1=nodes(:,1);
+y1=nodes(:,2);
+z1=nodes(:,3);
+D=mesh3.DIAM;
+
+h=figure;
+hold on
+axis equal
+for i=1:length(segments)
+    
+seg11=segments(i,1);
+seg12=segments(i,2);
+disp(append(num2str(i),'/',num2str(length(segments))))
+
+t3=[[x1(seg11),x1(seg12)];[y1(seg11),y1(seg12)];[z1(seg11),z1(seg12)]];
+n=round(D(1)*1.7);
+ct=0.1;
+[x,y,z]=tubeplot(t3,D(i)/2,n,ct);
+minflowws=abs(lin_flow-qq(i));
+[B1,I1]=min(minflowws);
+
+surf(x,y,z,'Facecolor',c(I1,:),'Edgecolor','k','FaceLighting','gouraud')
+
+end
+box on
+set(gca, 'YAxisLocation', 'right');
+set(gca,'LineWidth',1,'TickLength',[0.025 0.025]);
+grid on
+colormap parula
+c2=colorbar;
+set(gca, 'YDir','reverse')
+set(gca, 'ZDir','reverse')
+caxis([minflow,maxflow])
+set(gca, 'FontName', 'Times', 'FontSize',23,'TickLabelInterpreter','Latex');
+c2.Label.String = '$Q$ ($nl/min$)';
+c2.Label.Interpreter = 'latex';
+c2.Location="westoutside";
+
+%% plot oxygen results
+
+
+
+figure,imshow(imresize(tissout(:,:,1),[]),[]) %show mean 2D oxygen slab
+colormap jet
+colorbar
+clim([30,90])
