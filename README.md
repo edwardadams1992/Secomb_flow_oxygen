@@ -16,11 +16,11 @@ To run estimates of this network use: 'test_run.m'
 To run your own networks, the structure must be defined as per 'test_network.mat'  
 %%<br />
 Parameters for blood, oxygen diffusion can be changed by editing constants in: 'blood.m','bloodconc.m','bloodconcp.m','convect.m','secomb_oxygen.m'
-Flow parameters can be found in 'flow_estimate_bc.m', 'netflow.m', and 'secomb_oxygen.m'. 
-For further details on the theory and how the alogrithm is implemented, see Secomb's work for details:
-flow_estimate_bc.m - https://github.com/secomb/FlowEstimateV1
-netflow.m - https://github.com/secomb/NetFlowV2
-secomb_oxygen.m - https://github.com/secomb/GreensV4
+Flow parameters can be found in 'flow_estimate_bc.m', 'netflow.m', and 'secomb_oxygen.m'.<br /> 
+For further details on the theory and how the alogrithm is implemented, see Secomb's work for details:<br />
+flow_estimate_bc.m - https://github.com/secomb/FlowEstimateV1<br />
+netflow.m - https://github.com/secomb/NetFlowV2<br />
+secomb_oxygen.m - https://github.com/secomb/GreensV4<br />
 %% <br />
 The function 'tubeplot' is used to view flow in the networks. See: 
 https://uk.mathworks.com/matlabcentral/fileexchange/5562-tubeplot
